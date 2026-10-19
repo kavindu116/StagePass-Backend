@@ -1,10 +1,12 @@
-package com.kavindu.stagepass.event.entity;
+package com.kavindu.stagepass.entity;
 
-import com.kavindu.stagepass.user.entity.User;
+import com.kavindu.stagepass.entity.Enums.AgeRestriction;
+import com.kavindu.stagepass.entity.Enums.EventCategory;
+import com.kavindu.stagepass.entity.Enums.EventStatus;
+import com.kavindu.stagepass.entity.Enums.SaleMode;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 
 @Entity
@@ -52,18 +54,18 @@ public class Event {
 
     @Enumerated(EnumType.STRING)
     @Column(name = " age_restriction", nullable = false, length = 20)
-    private AgeRestriction ageRestriction;
+    private AgeRestriction ageRestriction = AgeRestriction.ALL_AGES;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private EventStatus status;
+    private EventStatus status = EventStatus.DRAFT;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "sale_mode", nullable = false, length = 20)
-    private SaleMode saleMode;
+    private SaleMode saleMode = SaleMode.DIRECT;
 
     @Column(name = "max_tickets_per_order", nullable = false, length = 20)
-    private short maxTicketPerOrder;
+    private short maxTicketPerOrder = 6;
 
     @Column(name = "sales_start_at")
     private Instant salesStartAt;
@@ -75,8 +77,8 @@ public class Event {
     private Instant publishedAt;
 
     @Column(name = "created_at")
-    private Instant createdAt;
+    private Instant createdAt = Instant.now();
 
     @Column(name = "updated_at")
-    private Instant updatedAt;
+    private Instant updatedAt  = Instant.now();
 }

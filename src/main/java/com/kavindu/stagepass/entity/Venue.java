@@ -1,4 +1,4 @@
-package com.kavindu.stagepass.event.entity;
+package com.kavindu.stagepass.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -38,9 +38,9 @@ public class Venue {
     private Integer capacity;
 
     @Column(nullable = false,insertable = false,updatable = false)
-    private Instant createdAt;
+    private Instant createdAt =  Instant.now();
 
     @Column(nullable = false,insertable = false,updatable = false)
-    private Instant updatedAt;
+    private Instant updatedAt  =  Instant.now();
 
 }

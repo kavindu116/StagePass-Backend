@@ -1,4 +1,4 @@
-package com.kavindu.stagepass.event.entity;
+package com.kavindu.stagepass.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,11 +28,11 @@ public class Tier {
     private BigDecimal price;
 
     @Column(name = "currency",nullable = false)
-    private char currency;
+    private String currency = "LKR";
 
     @Column(name = "color",nullable = false)
     private char color;
 
     @Column(name = "sort_order",nullable = false)
-    private Integer sortOrder;
+    private Integer sortOrder = 0;
 }

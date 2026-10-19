@@ -1,5 +1,6 @@
-package com.kavindu.stagepass.event.entity;
+package com.kavindu.stagepass.entity;
 
+import com.kavindu.stagepass.entity.Enums.ShowStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -36,12 +37,12 @@ public class Shows {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status",nullable = false)
-    private ShowStatus status;
+    private ShowStatus status = ShowStatus.SCHEDULED;
 
     @Column(name = "created_at")
-    private Instant createdAt;
+    private Instant createdAt = Instant.now();
 
     @Column(name = "updated_at")
-    private Instant updatedAt;
+    private Instant updatedAt  = Instant.now();
 
 }
