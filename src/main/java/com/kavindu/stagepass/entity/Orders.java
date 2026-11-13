@@ -1,9 +1,12 @@
 package com.kavindu.stagepass.entity;
 
-
 import com.kavindu.stagepass.entity.Enums.OrderStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -16,67 +19,73 @@ import java.time.Instant;
 @Builder
 @Table(name = "orders")
 public class Orders {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;                             // BIGINT -> Long
 
-    @Column(name = "public_ref",nullable = false,unique = true)
-    private String publicRef;
+    @Column(name = "public_ref", nullable = false, unique = true, length = 20)
+    private String publicRef;                    // "SP-7K3Q9X"
 
-    @JoinColumn(name = "user_id",nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @JoinColumn(name = "show_id",nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "show_id", nullable = false)
     private Shows show;
 
-    @JoinColumn(name = "promo_code_id")
     @ManyToOne(fetch = FetchType.LAZY)
-    private PromoCodes promoCodes;
+    @JoinColumn(name = "promo_code_id")
+    private PromoCodes promoCode;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(name = "status",nullable = false,length = 20)
-    private OrderStatus orderStatus = OrderStatus.PENDING;
+    @Column(name = "status", nullable = false, length = 20)
+    private OrderStatus status = OrderStatus.PENDING;
 
-    @Column(name = "subtotal",precision = 12,scale = 2,nullable = false)
+    @Column(name = "subtotal", nullable = false, precision = 12, scale = 2)
     private BigDecimal subtotal;
 
-    @Column(name = "service_fee",precision = 12,scale = 2,nullable = false)
+    @Builder.Default
+    @Column(name = "service_fee", nullable = false, precision = 12, scale = 2)
     private BigDecimal serviceFee = BigDecimal.ZERO;
 
-    @Column(name = "discount",precision = 12,scale = 2,nullable = false)
+    @Builder.Default
+    @Column(name = "discount", nullable = false, precision = 12, scale = 2)
     private BigDecimal discount = BigDecimal.ZERO;
 
-    @Column(name = "total",precision = 12,scale = 2,nullable = false)
-    private BigDecimal total;
+    @Column(name = "total", nullable = false, precision = 12, scale = 2)
+    private BigDecimal total;                    // DB checks total = subtotal + fee - discount
 
-    @Column(name = "currency",nullable = false,columnDefinition = "CHAR(3)",length = 3)
+    @Builder.Default
+    @JdbcTypeCode(SqlTypes.CHAR)
+    @Column(name = "currency", nullable = false, length = 3)
     private String currency = "LKR";
 
-    @Column(name = "contact_name",nullable = false,length = 120)
+    @Column(name = "contact_name", nullable = false, length = 120)
     private String contactName;
 
-    @Column(name = "contact_email",nullable = false,length = 225)
+    @Column(name = "contact_email", nullable = false, length = 255)
     private String contactEmail;
 
-    @Column(name = "contact_phone",nullable = false,length = 10)
+    @Column(name = "contact_phone", length = 20)
     private String contactPhone;
 
-    @Column(name = "idempotency_key",nullable = false,unique = true)
+    @Column(name = "idempotency_key", unique = true, length = 64)
     private String idempotencyKey;
 
-    @Column(name = "hold_expires_at",nullable = false)
+    @Column(name = "hold_expires_at", nullable = false)
     private Instant holdExpiresAt;
 
-    @Column(name = "confirmed_at",nullable = false)
-    private Instant confirmedAt;
+    @Column(name = "confirmed_at")
+    private Instant confirmedAt;                 // NULL until the payment webhook confirms
 
-    @Column(name = "created_at",nullable = false)
-    private Instant createdAt = Instant.now();
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
 
-    @Column(name = "updated_at",nullable = false)
-    private Instant updatedAt = Instant.now();
-
-
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
 }

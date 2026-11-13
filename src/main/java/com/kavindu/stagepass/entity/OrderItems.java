@@ -13,27 +13,26 @@ import java.math.BigDecimal;
 @Builder
 @Table(name = "order_items")
 public class OrderItems {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JoinColumn(name = "order_id",nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "order_id", nullable = false)
     private Orders order;
 
-    @JoinColumn(name = "show_seat_id",nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
-    private ShowSeats showSeats;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "show_seat_id", nullable = false)
+    private ShowSeats showSeat;
 
-    @JoinColumn(name = "tier_id",nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "tier_id", nullable = false)
     private Tier tier;
 
-    @Column(name = "price",precision = 12,scale = 2,nullable = false)
-    private BigDecimal price;
+    @Column(name = "price", nullable = false, precision = 12, scale = 2)
+    private BigDecimal price;                    // snapshot of the tier price at order time
 
-    @Column(name = "attendee_name",length = 120)
+    @Column(name = "attendee_name", length = 120)
     private String attendeeName;
-
-
 }

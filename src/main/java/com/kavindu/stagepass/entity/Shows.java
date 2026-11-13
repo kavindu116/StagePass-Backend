@@ -3,6 +3,8 @@ package com.kavindu.stagepass.entity;
 import com.kavindu.stagepass.entity.Enums.ShowStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.Instant;
 
@@ -17,16 +19,16 @@ public class Shows {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+    private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "event_id",nullable = false)
-    public Event event;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "event_id", nullable = false)
+    private Event event;
 
-    @Column(name = "label",length = 60)
-    private String label;
+    @Column(name = "label", length = 60)
+    private String label;                        // "Night 1"
 
-    @Column(name = "starts_at",nullable = false)
+    @Column(name = "starts_at", nullable = false)
     private Instant startsAt;
 
     @Column(name = "doors_open_at")
@@ -35,14 +37,16 @@ public class Shows {
     @Column(name = "ends_at")
     private Instant endsAt;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(name = "status",nullable = false)
+    @Column(name = "status", nullable = false, length = 20)
     private ShowStatus status = ShowStatus.SCHEDULED;
 
-    @Column(name = "created_at")
-    private Instant createdAt = Instant.now();
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
 
-    @Column(name = "updated_at")
-    private Instant updatedAt  = Instant.now();
-
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
 }

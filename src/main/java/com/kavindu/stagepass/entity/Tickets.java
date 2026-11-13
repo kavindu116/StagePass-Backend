@@ -3,6 +3,7 @@ package com.kavindu.stagepass.entity;
 import com.kavindu.stagepass.entity.Enums.TicketStatus;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -15,36 +16,41 @@ import java.util.UUID;
 @Builder
 @Table(name = "tickets")
 public class Tickets {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "code",nullable = false,unique = true)
-    private UUID code = UUID.randomUUID();
+    @Builder.Default
+    @Column(name = "code", nullable = false, unique = true, updatable = false)
+    private UUID code = UUID.randomUUID();       // the QR token's "jti"
 
-    @JoinColumn(name = "order_id",nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "order_id", nullable = false)
     private Orders order;
 
-    @JoinColumn(name = "order_item_id",nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    // order_item_id is UNIQUE in the DB -> one ticket per order item
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "order_item_id", nullable = false, unique = true)
     private OrderItems orderItem;
 
-    @JoinColumn(name = "show_seat_id",nullable = false)
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "show_seat_id", nullable = false)
     private ShowSeats showSeat;
 
-    @Column(name = "status",nullable = false,length = 20)
+    @Builder.Default
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false, length = 20)
     private TicketStatus status = TicketStatus.VALID;
 
     @Column(name = "checked_in_at")
     private Instant checkedInAt;
 
-    @JoinColumn(name = "checked_in_by")
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "checked_in_by")
     private User checkedInBy;
 
-    @Column(name = "created_at",nullable = false)
-    private Instant createdAt = Instant.now();
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
 }

@@ -6,8 +6,14 @@ import com.kavindu.stagepass.entity.Enums.EventStatus;
 import com.kavindu.stagepass.entity.Enums.SaleMode;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -17,20 +23,20 @@ import java.time.Instant;
 @Builder
 @Table(name = "events")
 public class Event {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-//    @OneToMany(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "organizer_id", nullable = false, unique = true)
-    @Column(name = "organizer_id")
-    private Long organizer_id;
+    // Plain id for now; becomes @ManyToOne User when auth is built
+    @Column(name = "organizer_id", nullable = false)
+    private Long organizerId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "venue_id", nullable = false, unique = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "venue_id", nullable = false)
     private Venue venue;
 
-    @Column(name = "slug", nullable = false, length = 120)
+    @Column(name = "slug", nullable = false, unique = true, length = 120)
     private String slug;
 
     @Column(name = "title", nullable = false, length = 200)
@@ -43,29 +49,34 @@ public class Event {
     @Column(name = "category", nullable = false, length = 20)
     private EventCategory category;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "text")
     private String description;
 
     @Column(name = "poster_url", length = 500)
     private String posterUrl;
 
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(name = "tint_color", length = 7)
-    private char tint_color;
+    private String tintColor;                    // "#4B2E83"
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(name = " age_restriction", nullable = false, length = 20)
+    @Column(name = "age_restriction", nullable = false, length = 20)
     private AgeRestriction ageRestriction = AgeRestriction.ALL_AGES;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private EventStatus status = EventStatus.DRAFT;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "sale_mode", nullable = false, length = 20)
     private SaleMode saleMode = SaleMode.DIRECT;
 
-    @Column(name = "max_tickets_per_order", nullable = false, length = 20)
-    private short maxTicketPerOrder = 6;
+    @Builder.Default
+    @Column(name = "max_tickets_per_order", nullable = false)
+    private Short maxTicketsPerOrder = 6;
 
     @Column(name = "sales_start_at")
     private Instant salesStartAt;
@@ -76,9 +87,23 @@ public class Event {
     @Column(name = "published_at")
     private Instant publishedAt;
 
-    @Column(name = "created_at")
-    private Instant createdAt = Instant.now();
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
 
-    @Column(name = "updated_at")
-    private Instant updatedAt  = Instant.now();
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private Instant updatedAt;
+
+    // ---- relationships (inverse side: Tier.event / Shows.event own the FK) ----
+
+    @Builder.Default
+    @OneToMany(mappedBy = "event")
+    @OrderBy("sortOrder ASC")
+    private List<Tier> tiers = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "event")
+    @OrderBy("startsAt ASC")
+    private List<Shows> shows = new ArrayList<>();
 }

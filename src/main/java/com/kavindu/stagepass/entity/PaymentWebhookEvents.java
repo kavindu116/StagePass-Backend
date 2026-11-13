@@ -1,7 +1,9 @@
 package com.kavindu.stagepass.entity;
 
+import com.kavindu.stagepass.entity.Enums.PaymentProvider;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -16,26 +18,26 @@ import java.util.Map;
 @Builder
 @Table(name = "payment_webhook_events")
 public class PaymentWebhookEvents {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "provider",nullable = false,length = 20)
-    private String provider;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "provider", nullable = false, length = 20)
+    private PaymentProvider provider;
 
-    @Column(name = "provider_event_id",nullable = false,length = 100)
-    private String providerEventId;
+    @Column(name = "provider_event_id", nullable = false, length = 100)
+    private String providerEventId;              // UNIQUE(provider, provider_event_id) = idempotency
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "payload",nullable = false)
+    @Column(name = "payload", nullable = false)
     private Map<String, Object> payload;
 
-    @Column(name = "received_at",nullable = false)
-    private Instant receivedAt = Instant.now();
+    @CreationTimestamp
+    @Column(name = "received_at", nullable = false, updatable = false)
+    private Instant receivedAt;
 
     @Column(name = "processed_at")
     private Instant processedAt;
-
-
-
 }
