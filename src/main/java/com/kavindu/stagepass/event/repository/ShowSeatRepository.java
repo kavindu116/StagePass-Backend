@@ -36,5 +36,26 @@ public interface ShowSeatRepository extends JpaRepository<ShowSeats,Long> {
             """)
     List<SeatCount> countByShow(@Param("eventId") Long eventId,
                                 @Param("available") ShowSeatStatus available);
+
+    /** Seat map: every seat of a show with its position and tier, in ONE query. */
+    @Query("""
+            select ss from ShowSeats ss
+            join fetch ss.venueSeat vs
+            join fetch ss.tier
+            where ss.show.id = :showId
+            order by vs.posY, vs.posX
+            """)
+    List<ShowSeats> findSeatMap(@Param("showId") Long showId);
+
+    /** Hold / checkout: the requested seats with everything needed to validate and price them. */
+    @Query("""
+            select ss from ShowSeats ss
+            join fetch ss.venueSeat
+            join fetch ss.tier
+            join fetch ss.show sh
+            join fetch sh.event
+            where ss.id in :ids
+            """)
+    List<ShowSeats> findWithDetailsByIdIn(@Param("ids") Collection<Long> ids);
 }
 

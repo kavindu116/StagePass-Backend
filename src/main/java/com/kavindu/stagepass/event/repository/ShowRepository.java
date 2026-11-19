@@ -1,14 +1,20 @@
 package com.kavindu.stagepass.event.repository;
 
 import com.kavindu.stagepass.entity.Shows;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 public interface ShowRepository extends JpaRepository<Shows, Long> {
+
+    // Seat map: the show plus its event (to check it's published and read max tickets per order)
+    @EntityGraph(attributePaths = "event")
+    Optional<Shows> findWithEventById(Long id);
 
     // Details page: the event's shows in date order
     List<Shows> findByEventIdOrderByStartsAtAsc(Long eventId);

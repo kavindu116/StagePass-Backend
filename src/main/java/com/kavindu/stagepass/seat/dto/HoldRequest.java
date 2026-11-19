@@ -1,0 +1,13 @@
+package com.kavindu.stagepass.seat.dto;
+
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
+import java.util.List;
+
+public record HoldRequest(
+        @NotNull Long showId,
+        @NotEmpty @Size(max = 20) List<@NotNull Long> seatIds
+) {
+}
